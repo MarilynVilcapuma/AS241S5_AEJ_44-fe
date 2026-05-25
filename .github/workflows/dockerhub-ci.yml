@@ -35,8 +35,8 @@ jobs:
       - name: Build and Push Docker Image to Docker Hub
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./Frontend_Apis
+          file: ./Frontend_Apis/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME_MARILYN }}/as241s5_aej_44-fe:latest
