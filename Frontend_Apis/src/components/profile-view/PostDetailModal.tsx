@@ -6,16 +6,27 @@ interface Props {
   onClose: () => void
 }
 
+const safeExternalUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null
+    return parsed.href
+  } catch {
+    return null
+  }
+}
+
 export default function PostDetailModal({ post, onClose }: Props) {
-  const isVideo = post.mediaType?.toUpperCase() === 'VIDEO'
+  const isVideo   = post.mediaType?.toUpperCase() === 'VIDEO'
+  const sourceUrl = safeExternalUrl(post.sourceUrl)
+  const date      = new Date(post.savedAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
-
-  const date = new Date(post.savedAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
 
   return (
     <div style={styles.backdrop} onClick={onClose}>
@@ -39,9 +50,11 @@ export default function PostDetailModal({ post, onClose }: Props) {
               <div style={styles.userAvatar}>{post.username.charAt(0).toUpperCase()}</div>
               <span style={styles.panelUsername}>{post.username}</span>
             </div>
-            <a href={post.sourceUrl} target="_blank" rel="noopener noreferrer" style={styles.sourceLink} title="Ver original en Instagram">
-              <i className="pi pi-external-link" />
-            </a>
+            {sourceUrl && (
+              <a href={sourceUrl} target="_blank" rel="noopener noreferrer" style={styles.sourceLink} title="Ver original en Instagram">
+                <i className="pi pi-external-link" />
+              </a>
+            )}
           </div>
           <div style={styles.captionArea}>
             {post.caption ? <p style={styles.caption}>{post.caption}</p> : <p style={styles.noCaption}>Sin descripción</p>}

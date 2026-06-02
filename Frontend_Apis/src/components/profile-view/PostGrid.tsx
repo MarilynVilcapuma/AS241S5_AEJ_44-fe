@@ -42,7 +42,12 @@ function GridCell({ post, onClick }: { post: Post; onClick: () => void }) {
       {post.mediaUrl ? (
         isVideo
           ? <video src={post.mediaUrl} style={styles.media} muted preload="metadata" />
-          : <img src={post.mediaUrl} alt={post.caption ?? ''} style={styles.media} loading="lazy" onError={(e) => { ;(e.target as HTMLImageElement).style.display = 'none'; ;(e.target as HTMLImageElement).parentElement!.style.background = '#e2e8f0' }} />
+          : <img src={post.mediaUrl} alt={post.caption ?? ''} style={styles.media} loading="lazy"
+              onError={(e) => {
+                const img = e.target as HTMLImageElement
+                img.style.display = 'none'
+                if (img.parentElement) img.parentElement.style.background = '#e2e8f0'
+              }} />
       ) : (
         <div style={styles.noMedia}><i className="pi pi-image" style={{ fontSize: '1.5rem', color: '#94a3b8' }} /></div>
       )}

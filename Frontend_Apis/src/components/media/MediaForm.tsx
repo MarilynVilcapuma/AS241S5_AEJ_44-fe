@@ -10,17 +10,26 @@ interface MediaFormProps {
   loading: boolean
 }
 
-const isValidUrl = (url: string) =>
-  url.startsWith('https://www.instagram.com/') || url.startsWith('http://www.instagram.com/')
+const isValidUrl = (url: string) => {
+  try {
+    const parsed = new URL(url)
+    return (
+      (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
+      (parsed.hostname === 'www.instagram.com' || parsed.hostname === 'instagram.com')
+    )
+  } catch {
+    return false
+  }
+}
 
 export default function MediaForm({ visible, onHide, onSubmit, loading }: MediaFormProps) {
   const [username, setUsername] = useState('')
   const [postUrl, setPostUrl]   = useState('')
 
-  const canSubmit  = username.trim().length > 0 && isValidUrl(postUrl.trim())
   const urlDirty   = postUrl.length > 0
   const urlValid   = isValidUrl(postUrl.trim())
   const urlInvalid = urlDirty && !urlValid
+  const canSubmit  = username.trim().length > 0 && urlValid
 
   const handleSubmit = async () => {
     if (!canSubmit) return

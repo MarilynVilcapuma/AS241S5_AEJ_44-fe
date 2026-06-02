@@ -4,6 +4,17 @@ import { Button } from 'primereact/button'
 import type { Post } from '../../types/post.types'
 import type { Profile } from '../../types/profile.types'
 
+const safeExternalUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null
+    return parsed.href
+  } catch {
+    return null
+  }
+}
+
 interface MediaTableProps {
   media: Post[]
   profiles: Profile[]
@@ -29,8 +40,13 @@ export default function MediaTable({ media, profiles, loading, onDeactivate, onA
           style={{ objectFit: 'cover', borderRadius: '10px', border: '2px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.1)', flexShrink: 0 }}
           onError={e => {
             const t = e.target as HTMLImageElement
-            t.style.display = 'none'
-            t.insertAdjacentHTML('afterend', `<div style="width:56px;height:56px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center"><i class="pi pi-image" style="color:#94a3b8;font-size:1.4rem"></i></div>`)
+            const placeholder = document.createElement('div')
+            placeholder.style.cssText = 'width:56px;height:56px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center'
+            const icon = document.createElement('i')
+            icon.className = 'pi pi-image'
+            icon.style.cssText = 'color:#94a3b8;font-size:1.4rem'
+            placeholder.appendChild(icon)
+            t.replaceWith(placeholder)
           }} />
       )
     }
@@ -94,9 +110,10 @@ export default function MediaTable({ media, profiles, loading, onDeactivate, onA
   )
 
   const sourceTemplate = (post: Post) => {
-    if (!post.sourceUrl) return <span style={{ color: '#9ca3af' }}>—</span>
+    const url = safeExternalUrl(post.sourceUrl)
+    if (!url) return <span style={{ color: '#9ca3af' }}>—</span>
     return (
-      <a href={post.sourceUrl} target="_blank" rel="noreferrer"
+      <a href={url} target="_blank" rel="noreferrer"
         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#6366f1', fontSize: '0.8rem', textDecoration: 'none', padding: '0.2rem 0.6rem', borderRadius: '6px', background: '#eef2ff', fontWeight: 500, transition: 'background 0.15s' }}
         onMouseEnter={e => (e.currentTarget.style.background = '#e0e7ff')}
         onMouseLeave={e => (e.currentTarget.style.background = '#eef2ff')}>
