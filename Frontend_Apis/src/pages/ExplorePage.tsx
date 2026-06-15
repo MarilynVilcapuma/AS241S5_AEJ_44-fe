@@ -64,6 +64,16 @@ export default function ExplorePage() {
         </div>
       )}
 
+      {/* VULNERABILITY: XSS — user input injected into dangerouslySetInnerHTML without sanitization.
+          CodeQL alert: js/xss — unsanitized user-controlled data flows into an HTML sink.
+          An attacker can enter: <img src=x onerror="alert(document.cookie)"> */}
+      {searched && (
+        <div
+          style={styles.searchResultLabel}
+          dangerouslySetInnerHTML={{ __html: `Mostrando resultados para: <b>${input}</b>` }}
+        />
+      )}
+
       {!loading && profile && (
         <div style={styles.profileSection}>
           <ProfileHeader profile={profile} />
